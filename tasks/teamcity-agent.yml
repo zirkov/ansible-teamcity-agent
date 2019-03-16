@@ -7,13 +7,11 @@
     timeout: 60
   register: _teamcity_agent_package
 
-- name: "Install dependencies"
+- name: "Install Zip"
   apt:
-    name: "{{ item }}"
+    name: ['zip']
     state: present
     update_cache: yes
-  with_items:
-       - zip
 
 - name: "Create Agent Build dir"
   file:
@@ -23,14 +21,19 @@
     group: "{{ teamcity_agent_group }}"
     mode: 0755
 
+- name: "Check if bin existis"
+  stat:
+    path: "{{ teamcity_agent_install_dir }}/bin/agent.sh"
+  register: _teamcity_agent_start_script
+
 - name: "Unpack distribution"
   unarchive:
     src: "/tmp/buildAgent.zip"
     dest: "{{ teamcity_agent_install_dir }}"
     owner: "{{ teamcity_agent_user }}"
     group: "{{ teamcity_agent_group }}"
-    copy: "no"
-  when: _teamcity_agent_package|changed
+    remote_src: "yes"
+  when: _teamcity_agent_package is changed or _teamcity_agent_start_script.stat.exists == False
 
 - name: "Add TeamCity Agent service default config"
   template:
