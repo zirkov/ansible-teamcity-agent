@@ -4,7 +4,7 @@ Description="TeamCity Agent"
 
 [Service]
 User={{ teamcity_agent_user }}
-ExecStartPre=". /etc/default/teamcity-agent"
+EnvironmentFile=/etc/default/teamcity-agent
 ExecStart={{ teamcity_agent_install_dir }}/bin/agent.sh run
 ExecStop={{ teamcity_agent_install_dir }}/bin/agent.sh stop
 RemainAfterExit=yes
